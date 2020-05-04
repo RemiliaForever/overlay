@@ -20,9 +20,8 @@ REQUIRED_USE="|| (
 RESTRICT="network-sandbox"
 
 RDEPEND=""
-DEPEND="${RDEPEND}
-	dev-lang/go
-"
+BDEPEND="dev-lang/go"
+DEPEND="${RDEPEND}"
 
 src_compile() {
 	if use client; then
