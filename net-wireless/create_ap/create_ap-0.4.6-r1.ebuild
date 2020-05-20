@@ -7,11 +7,12 @@ inherit systemd bash-completion-r1
 DESCRIPTION="This script creates a NATed or Bridged WiFi Access Point. "
 HOMEPAGE="https://github.com/oblique/create_ap"
 SRC_URI="https://github.com/oblique/create_ap/archive/v${PV}.zip -> ${P}.zip"
+PATCHES="${FILESDIR}/transmit.patch"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="haveged doc"
+IUSE="haveged doc +transmit-patch"
 
 RDEPEND="app-shells/bash
 	sys-apps/util-linux
@@ -24,6 +25,10 @@ RDEPEND="app-shells/bash
 	haveged? ( sys-apps/haveged )
 "
 DEPEND="${RDEPEND}"
+
+src_prepare() {
+	default
+}
 
 src_install() {
 	dobin create_ap
