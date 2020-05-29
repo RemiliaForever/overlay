@@ -1,0 +1,17 @@
+--- a/configure.in
++++ b/configure.in
+@@ -27,6 +27,7 @@ AC_ARG_WITH(
+ 	AC_CHECK_LIB(form,    main,  , [AC_MSG_ERROR([Couldn't find form library])] )
+ 	AC_CHECK_LIB(panel,   main,  , [AC_MSG_ERROR([Couldn't find panel library])] )
+ 	AC_CHECK_LIB(menu,    main,  , [AC_MSG_ERROR([Couldn't find menu library])] )
++	AC_CHECK_LIB(tinfo,   main,  , [AC_MSG_ERROR([Couldn't find tinfo library])] )
+     ],
+     [
+ 	#use unicode ncursesw (default case)
+@@ -35,6 +36,7 @@ AC_ARG_WITH(
+ 	AC_CHECK_LIB(formw,    main,  , [AC_MSG_ERROR([Couldn't find formw library])] )
+ 	AC_CHECK_LIB(panelw,   main,  , [AC_MSG_ERROR([Couldn't find panelw library])] )
+ 	AC_CHECK_LIB(menuw,    main,  , [AC_MSG_ERROR([Couldn't find menuw library])] )
++	AC_CHECK_LIB(tinfow,   main,  , [AC_MSG_ERROR([Couldn't find tinfow library])] )
+     ]
+ )
