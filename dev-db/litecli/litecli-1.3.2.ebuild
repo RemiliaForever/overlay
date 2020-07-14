@@ -7,10 +7,10 @@ PYTHON_COMPAT=( python3_{6,7,8} )
 inherit distutils-r1
 
 DESCRIPTION="CLI for SQLite Database with auto-completion and syntax highlighting"
-
 HOMEPAGE="https://litecli.com"
-SRC_URI="https://github.com/dbcli/litecli/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="BSD"
+SRC_URI="https://github.com/dbcli/litecli/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+
 SLOT="0"
 KEYWORDS="amd64 x86"
 
@@ -23,6 +23,4 @@ RDEPEND="
 	>=dev-python/configobj-5.0.5[${PYTHON_USEDEP}]
 	>=dev-python/cli_helpers-1.0.1[${PYTHON_USEDEP}]
 "
-DEPEND="${RDEPEND}
-	dev-python/setuptools[${PYTHON_USEDEP}]
-"
+DEPEND="${RDEPEND}"
