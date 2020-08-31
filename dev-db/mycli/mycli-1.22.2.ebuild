@@ -11,7 +11,6 @@ HOMEPAGE="https://www.mycli.net"
 LICENSE="BSD MIT"
 SRC_URI="https://github.com/dbcli/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 PATCHES="
-	${FILESDIR}/prompt_toolkit.patch
 	${FILESDIR}/fix-test-install.patch
 "
 
@@ -21,12 +20,13 @@ IUSE="ssh"
 
 RDEPEND="
 	>=dev-python/click-7.0[${PYTHON_USEDEP}]
-	>=dev-python/pygments-2.0[${PYTHON_USEDEP}]
-	>=dev-python/prompt_toolkit-2.0.6[${PYTHON_USEDEP}]
+	>=dev-python/pygments-1.6[${PYTHON_USEDEP}]
+	>=dev-python/prompt_toolkit-3.0.0[${PYTHON_USEDEP}]
+	<dev-python/prompt_toolkit-4.0.0[${PYTHON_USEDEP}]
 	>=dev-python/pymysql-0.9.2[${PYTHON_USEDEP}]
 	>=dev-python/sqlparse-0.3.0[${PYTHON_USEDEP}]
 	<dev-python/sqlparse-0.4.0[${PYTHON_USEDEP}]
-	>=dev-python/configobj-5.0.6[${PYTHON_USEDEP}]
+	>=dev-python/configobj-5.0.5[${PYTHON_USEDEP}]
 	>=dev-python/cryptography-1.0.0[${PYTHON_USEDEP}]
 	>=dev-python/cli_helpers-1.1.0[${PYTHON_USEDEP}]
 	ssh? ( dev-python/paramiko[${PYTHON_USEDEP}] )
