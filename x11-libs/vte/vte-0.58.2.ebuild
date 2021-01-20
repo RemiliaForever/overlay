@@ -8,7 +8,7 @@ VALA_MIN_API_VERSION="0.32"
 inherit git-r3 meson vala xdg
 
 DESCRIPTION="Library providing a virtual terminal emulator widget"
-HOMEPAGE="https://wiki.gnome.org/Apps/Terminal/VTE termite-patch? ( https://github.com/thestinger/vte-ng"
+HOMEPAGE="https://github.com/thestinger/vte-ng"
 
 LICENSE="LGPL-2.1"
 SLOT="2.91"
