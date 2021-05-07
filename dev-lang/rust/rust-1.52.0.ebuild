@@ -1,11 +1,12 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{7..9} )
 
-inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing multilib-build python-any-r1 rust-toolchain toolchain-funcs
+inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
+	multilib-build python-any-r1 rust-toolchain toolchain-funcs verify-sig
 
 if [[ ${PV} = *beta* ]]; then
 	betaver=${PV//*beta}
@@ -18,7 +19,7 @@ else
 	SLOT="stable/${ABI_VER}"
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64"
 fi
 
 RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
@@ -28,6 +29,7 @@ HOMEPAGE="https://www.rust-lang.org/"
 
 SRC_URI="
 	https://static.rust-lang.org/dist/${SRC}
+	verify-sig? ( https://static.rust-lang.org/dist/${SRC}.asc )
 	!system-bootstrap? ( $(rust_all_arch_uris rust-${RUST_STAGE0_VERSION}) )
 "
 
@@ -35,30 +37,51 @@ SRC_URI="
 ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai Mips MSP430
 	NVPTX PowerPC RISCV Sparc SystemZ WebAssembly X86 XCore )
 ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
-LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/?}
+LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="clippy cpu_flags_x86_sse2 debug doc libressl miri nightly parallel-compiler rls rustfmt +system-bootstrap system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="clippy cpu_flags_x86_sse2 debug doc miri nightly parallel-compiler rls rustfmt system-bootstrap system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
 # Please keep the LLVM dependency block separate. Since LLVM is slotted,
 # we need to *really* make sure we're not pulling more than one slot
 # simultaneously.
 
 # How to use it:
-# 1. List all the working slots (with min versions) in ||, newest first.
-# 2. Update the := to specify *max* version, e.g. < 12.
-# 3. Specify LLVM_MAX_SLOT, e.g. 11.
-LLVM_DEPEND="
-	|| (
-		sys-devel/llvm:11[${LLVM_TARGET_USEDEPS// /,}]
-	)
-	<sys-devel/llvm-12:=
+# List all the working slots in LLVM_VALID_SLOTS, newest first.
+LLVM_VALID_SLOTS=( 12 )
+LLVM_MAX_SLOT="${LLVM_VALID_SLOTS[0]}"
+
+# splitting usedeps needed to avoid CI/pkgcheck's UncheckableDep limitation
+# (-) usedep needed because we may build with older llvm without that target
+LLVM_DEPEND="|| ( "
+for _s in ${LLVM_VALID_SLOTS[@]}; do
+	LLVM_DEPEND+=" ( "
+	for _x in ${ALL_LLVM_TARGETS[@]}; do
+		LLVM_DEPEND+="
+			${_x}? ( sys-devel/llvm:${_s}[${_x}(-)] )"
+	done
+	LLVM_DEPEND+=" )"
+done
+unset _s _x
+LLVM_DEPEND+=" )
+	<sys-devel/llvm-$(( LLVM_MAX_SLOT + 1 )):=
 	wasm? ( sys-devel/lld )
 "
-LLVM_MAX_SLOT=11
 
-BOOTSTRAP_DEPEND="|| ( >=dev-lang/rust-1.$(($(ver_cut 2) - 1)) >=dev-lang/rust-bin-1.$(($(ver_cut 2) - 1)) )"
+# to bootstrap we need at least exactly previous version, or same.
+# most of the time previous versions fail to bootstrap with newer
+# for example 1.47.x, requires at least 1.46.x, 1.47.x is ok,
+# but it fails to bootstrap with 1.48.x
+# https://github.com/rust-lang/rust/blob/${PV}/src/stage0.txt
+BOOTSTRAP_DEPEND="||
+	(
+		=dev-lang/rust-$(ver_cut 1).$(($(ver_cut 2) - 1))*
+		=dev-lang/rust-bin-$(ver_cut 1).$(($(ver_cut 2) - 1))*
+		=dev-lang/rust-$(ver_cut 1).$(ver_cut 2)*
+		=dev-lang/rust-bin-$(ver_cut 1).$(ver_cut 2)*
+	)
+"
 
 BDEPEND="${PYTHON_DEPS}
 	app-eselect/eselect-rust
@@ -71,21 +94,20 @@ BDEPEND="${PYTHON_DEPS}
 		dev-util/cmake
 		dev-util/ninja
 	)
+	test? ( sys-devel/gdb )
+	verify-sig? ( app-crypt/openpgp-keys-rust )
 "
 
 DEPEND="
-	>=dev-libs/libgit2-1.1.0:=
+	>=app-arch/xz-utils-5.2
 	net-misc/curl:=[http2,ssl]
 	sys-libs/zlib:=
-	!libressl? ( dev-libs/openssl:0= )
-	libressl? ( dev-libs/libressl:0= )
+	dev-libs/openssl:0=
 	elibc_musl? ( sys-libs/libunwind:= )
-	system-llvm? (
-		${LLVM_DEPEND}
-	)
+	system-llvm? ( ${LLVM_DEPEND} )
 "
 
-# we need to block versions older than 1.47.0 due to layout changes.
+# we need to block older versions due to layout changes.
 RDEPEND="${DEPEND}
 	app-eselect/eselect-rust
 	!<dev-lang/rust-1.47.0-r1
@@ -105,6 +127,7 @@ CMAKE_WARN_UNUSED_CLI=no
 
 QA_FLAGS_IGNORED="
 	usr/lib/${PN}/${PV}/bin/.*
+	usr/lib/${PN}/${PV}/libexec/.*
 	usr/lib/${PN}/${PV}/lib/lib.*.so
 	usr/lib/${PN}/${PV}/lib/rustlib/.*/bin/.*
 	usr/lib/${PN}/${PV}/lib/rustlib/.*/lib/lib.*.so
@@ -118,48 +141,64 @@ QA_SONAME="
 # causes double bootstrap
 RESTRICT="test"
 
+VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/rust.asc"
+
 PATCHES=(
-	"${FILESDIR}"/1.47.0-libressl.patch
-	"${FILESDIR}"/1.46.0-don-t-create-prefix-at-time-of-check.patch
 	"${FILESDIR}"/1.47.0-ignore-broken-and-non-applicable-tests.patch
-	"${FILESDIR}"/1.47.0-llvm-tensorflow-fix.patch
-	"${FILESDIR}"/1.48.0-gentoo-musl-target-specs.patch
+	"${FILESDIR}"/1.49.0-gentoo-musl-target-specs.patch
+	"${FILESDIR}"/1.51.0-slow-doc-install.patch
 )
 
 S="${WORKDIR}/${MY_P}-src"
 
 toml_usex() {
-	usex "$1" true false
+	usex "${1}" true false
 }
 
 boostrap_rust_version_check() {
 	# never call from pkg_pretend. eselect-rust may be not installed yet.
 	[[ ${MERGE_TYPE} == binary ]] && return
 	local rustc_wanted="$(ver_cut 1).$(($(ver_cut 2) - 1))"
+	local rustc_toonew="$(ver_cut 1).$(($(ver_cut 2) + 1))"
 	local rustc_version=( $(eselect --brief rust show 2>/dev/null) )
 	rustc_version=${rustc_version[0]#rust-bin-}
 	rustc_version=${rustc_version#rust-}
 
-	[[ -z "${rustc_version}" ]] && die "Failed to determine rustc version!"
+	[[ -z "${rustc_version}" ]] && die "Failed to determine rust version, check 'eselect rust' output"
 
 	if ver_test "${rustc_version}" -lt "${rustc_wanted}" ; then
 		eerror "Rust >=${rustc_wanted} is required"
-		eerror "please run \'eselect rust\' and set correct rust version"
-		die
+		eerror "please run 'eselect rust' and set correct rust version"
+		die "selected rust version is too old"
+	elif ver_test "${rustc_version}" -ge "${rustc_toonew}" ; then
+		eerror "Rust <${rustc_toonew} is required"
+		eerror "please run 'eselect rust' and set correct rust version"
+		die "selected rust version is too new"
 	else
 		einfo "Using rust ${rustc_version} to build"
 	fi
 }
 
 pre_build_checks() {
-	local M=6144
+	local M=8192
+	# multiply requirements by 1.5 if we are doing x86-multilib
+	if use amd64; then
+		M=$(( $(usex abi_x86_32 15 10) * ${M} / 10 ))
+	fi
 	M=$(( $(usex clippy 128 0) + ${M} ))
 	M=$(( $(usex miri 128 0) + ${M} ))
 	M=$(( $(usex rls 512 0) + ${M} ))
 	M=$(( $(usex rustfmt 256 0) + ${M} ))
-	M=$(( $(usex system-llvm 0 2048) + ${M} ))
+	# add 2G if we compile llvm and 256M per llvm_target
+	if ! use system-llvm; then
+		M=$(( 2048 + ${M} ))
+		local ltarget
+		for ltarget in ${ALL_LLVM_TARGETS[@]}; do
+			M=$(( $(usex ${ltarget} 256 0) + ${M} ))
+		done
+	fi
 	M=$(( $(usex wasm 256 0) + ${M} ))
-	M=$(( $(usex debug 15 10) * ${M} / 10 ))
+	M=$(( $(usex debug 2 1) * ${M} ))
 	eshopts_push -s extglob
 	if is-flagq '-g?(gdb)?([1-9])'; then
 		M=$(( 15 * ${M} / 10 ))
@@ -170,6 +209,10 @@ pre_build_checks() {
 	CHECKREQS_DISK_BUILD=${M}M check-reqs_pkg_${EBUILD_PHASE}
 }
 
+llvm_check_deps() {
+	has_version -r "sys-devel/llvm:${LLVM_SLOT}[${LLVM_TARGET_USEDEPS// /,}]"
+}
+
 pkg_pretend() {
 	pre_build_checks
 }
@@ -178,12 +221,14 @@ pkg_setup() {
 	pre_build_checks
 	python-any-r1_pkg_setup
 
+	export LIBGIT2_NO_PKG_CONFIG=1 #749381
+
 	use system-bootstrap && boostrap_rust_version_check
 
 	if use system-llvm; then
 		llvm_pkg_setup
 
-		local llvm_config="$(get_llvm_prefix "$LLVM_MAX_SLOT")/bin/llvm-config"
+		local llvm_config="$(get_llvm_prefix "${LLVM_MAX_SLOT}")/bin/llvm-config"
 		export LLVM_LINK_SHARED=1
 		export RUSTFLAGS="${RUSTFLAGS} -Lnative=$("${llvm_config}" --libdir)"
 	fi
@@ -195,7 +240,7 @@ src_prepare() {
 		local rust_stage0="rust-${RUST_STAGE0_VERSION}-$(rust_abi)"
 
 		"${WORKDIR}/${rust_stage0}"/install.sh --disable-ldconfig \
-			--destdir="${rust_stage0_root}" --prefix=/ || die
+			--without=rust-docs --destdir="${rust_stage0_root}" --prefix=/ || die
 	fi
 
 	default
@@ -243,6 +288,7 @@ src_configure() {
 
 	cat <<- _EOF_ > "${S}"/config.toml
 		[llvm]
+		download-ci-llvm = false
 		optimize = $(toml_usex !debug)
 		release-debuginfo = $(toml_usex debug)
 		assertions = $(toml_usex debug)
@@ -256,8 +302,9 @@ src_configure() {
 		target = [${rust_targets}]
 		cargo = "${rust_stage0_root}/bin/cargo"
 		rustc = "${rust_stage0_root}/bin/rustc"
+		rustfmt = "${rust_stage0_root}/bin/rustfmt"
 		docs = $(toml_usex doc)
-		compiler-docs = $(toml_usex doc)
+		compiler-docs = false
 		submodules = false
 		python = "${EPYTHON}"
 		locked-deps = true
@@ -281,12 +328,18 @@ src_configure() {
 		optimize = true
 		debug = $(toml_usex debug)
 		debug-assertions = $(toml_usex debug)
-		debuginfo-level-rustc = 0
+		debug-assertions-std = $(toml_usex debug)
+		debuginfo-level = $(usex debug 2 0)
+		debuginfo-level-rustc = $(usex debug 2 0)
+		debuginfo-level-std = $(usex debug 2 0)
+		debuginfo-level-tools = $(usex debug 2 0)
+		debuginfo-level-tests = 0
 		backtrace = true
 		incremental = false
 		default-linker = "$(tc-getCC)"
 		parallel-compiler = $(toml_usex parallel-compiler)
 		channel = "$(usex nightly nightly stable)"
+		description = "gentoo"
 		rpath = false
 		verbose-tests = true
 		optimize-tests = $(toml_usex !debug)
@@ -294,10 +347,15 @@ src_configure() {
 		dist-src = false
 		remap-debuginfo = true
 		lld = $(usex system-llvm false $(toml_usex wasm))
+		# only deny warnings if doc+wasm are NOT requested, documenting stage0 wasm std fails without it
+		# https://github.com/rust-lang/rust/issues/74976
+		# https://github.com/rust-lang/rust/issues/76526
+		deny-warnings = $(usex wasm $(usex doc false true) true)
 		backtrace-on-ice = true
 		jemalloc = false
 		[dist]
 		src-tarball = false
+		compression-formats = ["gz"]
 	_EOF_
 
 	for v in $(multilib_get_enabled_abi_pairs); do
@@ -412,8 +470,16 @@ src_configure() {
 	done
 	fi # I_KNOW_WHAT_I_AM_DOING_CROSS
 
-	einfo "Rust configured with the following settings:"
+	einfo "Rust configured with the following flags:"
+	echo
+	echo "RUSTFLAGS=\"${RUSTFLAGS:-}\""
+	echo "RUSTFLAGS_BOOTSTRAP=\"${RUSTFLAGS_BOOTSTRAP:-}\""
+	echo "RUSTFLAGS_NOT_BOOTSTRAP=\"${RUSTFLAGS_NOT_BOOTSTRAP:-}\""
+	cat "${S}"/config.env || die
+	echo
+	einfo "config.toml contents:"
 	cat "${S}"/config.toml || die
+	echo
 }
 
 src_compile() {
@@ -482,19 +548,16 @@ src_test() {
 }
 
 src_install() {
-	# https://github.com/rust-lang/rust/issues/77721
-	# also 1.46.0-don-t-create-prefix-at-time-of-check.patch
-	dodir "/usr/lib/${PN}/${PV}"
 	(
 	IFS=$'\n'
 	env $(cat "${S}"/config.env) DESTDIR="${D}" \
-		"${EPYTHON}" ./x.py install -vv --config="${S}"/config.toml || die
+		"${EPYTHON}" ./x.py install -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
 	)
 
 	# bug #689562, #689160
-	rm -v "${D}/usr/lib/${PN}/${PV}/etc/bash_completion.d/cargo" || die
-	rmdir -v "${D}/usr/lib/${PN}/${PV}"/etc{/bash_completion.d,} || die
-	dobashcomp build/tmp/dist/cargo-image/etc/bash_completion.d/cargo
+	rm -v "${ED}/usr/lib/${PN}/${PV}/etc/bash_completion.d/cargo" || die
+	rmdir -v "${ED}/usr/lib/${PN}/${PV}"/etc{/bash_completion.d,} || die
+	newbashcomp src/tools/cargo/src/etc/cargo.bashcomp.sh cargo
 
 	local symlinks=(
 		cargo
@@ -529,6 +592,7 @@ src_install() {
 
 	# symlinks to switch components to active rust in eselect
 	dosym "${PV}/lib" "/usr/lib/${PN}/lib-${PV}"
+	dosym "${PV}/libexec" "/usr/lib/${PN}/libexec-${PV}"
 	dosym "${PV}/share/man" "/usr/lib/${PN}/man-${PV}"
 	dosym "rust/${PV}/lib/rustlib" "/usr/lib/rustlib-${PV}"
 	dosym "../../lib/${PN}/${PV}/share/doc/rust" "/usr/share/doc/${P}"
@@ -536,7 +600,8 @@ src_install() {
 	newenvd - "50${P}" <<-_EOF_
 		LDPATH="${EPREFIX}/usr/lib/rust/lib"
 		MANPATH="${EPREFIX}/usr/lib/rust/man"
-		$(usex elibc_musl 'CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C target-feature=-crt-static"' '')
+		$(use amd64 && usex elibc_musl 'CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C target-feature=-crt-static"' '')
+		$(use arm64 && usex elibc_musl 'CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C target-feature=-crt-static"' '')
 	_EOF_
 
 	rm -rf "${ED}/usr/lib/${PN}/${PV}"/*.old || die
@@ -551,6 +616,7 @@ src_install() {
 		/usr/bin/rust-lldb
 		/usr/lib/rustlib
 		/usr/lib/rust/lib
+		/usr/lib/rust/libexec
 		/usr/lib/rust/man
 		/usr/share/doc/rust
 	_EOF_

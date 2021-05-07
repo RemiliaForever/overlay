@@ -38,7 +38,7 @@ BDEPEND="
 		app-doc/doxygen
 		dev-python/docutils
 	)
-	cuda? ( <sys-devel/gcc-10[cxx] )
+	cuda? ( <sys-devel/gcc-11[cxx] )
 "
 
 S="${WORKDIR}/OpenSubdiv-${MY_PV}"
