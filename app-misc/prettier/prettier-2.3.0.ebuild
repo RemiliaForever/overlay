@@ -16,9 +16,13 @@ DEPEND="net-libs/nodejs"
 RESTRICT="network-sandbox"
 
 src_compile() {
+	# fix link dev dependence
+	sed -i '/link/d' package.json
+
 	npm config set registry https://registry.npm.taobao.org
+
 	npm install --no-fund || die
-	NODE_OPTIONS=--max_old_space_size=4096 npm run build || die
+	npm run build || die
 }
 
 src_install() {

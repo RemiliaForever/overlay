@@ -1,6 +1,8 @@
 
-cross-x86_64-w64-mingw32
 cross-aarch64-unknown-linux-musl
 cross-x86_64-pc-linux-musl
-cross-i686-w64-mingw32
 cross-aarch64-unknown-linux-gnu
+cross-i686-w64-mingw32
+cross-x86_64-w64-mingw32
+cross-armhf-unknown-linux-musl
+cross-arm-hardfloat-linux-musleabi

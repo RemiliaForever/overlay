@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6..9} )
 inherit distutils-r1
 
 DESCRIPTION="CLI for MySQL Database with auto-completion and syntax highlighting"
@@ -20,15 +20,17 @@ IUSE="ssh"
 
 RDEPEND="
 	>=dev-python/click-7.0[${PYTHON_USEDEP}]
+	>=dev-python/cryptography-1.0.0[${PYTHON_USEDEP}]
 	>=dev-python/pygments-1.6[${PYTHON_USEDEP}]
-	>=dev-python/prompt_toolkit-3.0.0[${PYTHON_USEDEP}]
+	>=dev-python/prompt_toolkit-3.0.6[${PYTHON_USEDEP}]
 	<dev-python/prompt_toolkit-4.0.0[${PYTHON_USEDEP}]
 	>=dev-python/pymysql-0.9.2[${PYTHON_USEDEP}]
 	>=dev-python/sqlparse-0.3.0[${PYTHON_USEDEP}]
-	<dev-python/sqlparse-0.4.0[${PYTHON_USEDEP}]
+	<dev-python/sqlparse-0.5.0[${PYTHON_USEDEP}]
 	>=dev-python/configobj-5.0.5[${PYTHON_USEDEP}]
-	>=dev-python/cryptography-1.0.0[${PYTHON_USEDEP}]
-	>=dev-python/cli_helpers-1.1.0[${PYTHON_USEDEP}]
+	>=dev-python/cli_helpers-2.0.1[${PYTHON_USEDEP}]
+	>=dev-python/pyperclip-1.8.1[${PYTHON_USEDEP}]
+	>=dev-python/pyaes-1.6.1[${PYTHON_USEDEP}]
 	ssh? ( dev-python/paramiko[${PYTHON_USEDEP}] )
 "
 DEPEND="${RDEPEND}"

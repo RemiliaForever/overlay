@@ -47,6 +47,7 @@ src_configure() {
 
 	if use cuda; then
 		addpredict /dev/nvidiactl
+		addpredict /dev/nvidia0
 	fi
 
 	cmake_src_configure
@@ -67,6 +68,7 @@ src_compile() {
 		CUDA_HOME=$(usex cuda ${CUDA_HOME} "") \
 		NO_FFMPEG=$(usex ffmpeg 0 1) \
 		MAKEOPTS="-j1" \
+		TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST} \
 		distutils-r1_src_compile
 	fi
 }
