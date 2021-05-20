@@ -21,3 +21,9 @@ RDEPEND="
 	dev-util/nvidia-cuda-toolkit[profiler]
 "
 DEPEND="${RDEPEND}"
+
+src_prepare() {
+	default
+
+	addpredict /dev/nvidiactl
+}
