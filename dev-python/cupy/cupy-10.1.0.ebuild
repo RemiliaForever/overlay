@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..10} )
 inherit distutils-r1 git-r3
 
 DESCRIPTION="NumPy-like API accelerated with CUDA "
@@ -16,7 +16,8 @@ SLOT="0"
 KEYWORDS="amd64"
 
 RDEPEND="
-	>=dev-python/numpy-1.17[${PYTHON_USEDEP}]
+	>=dev-python/numpy-1.18[${PYTHON_USEDEP}]
+	<dev-python/numpy-1.24[${PYTHON_USEDEP}]
 	>=dev-python/fastrlock-0.5[${PYTHON_USEDEP}]
 	dev-util/nvidia-cuda-toolkit[profiler]
 "

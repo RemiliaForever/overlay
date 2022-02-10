@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..10} )
 inherit distutils-r1
 
 DESCRIPTION="CLI for Postgres with auto-completion and syntax highlighting"
@@ -25,6 +25,6 @@ RDEPEND="
 	<dev-python/sqlparse-0.5.0[${PYTHON_USEDEP}]
 	>=dev-python/configobj-5.0.6[${PYTHON_USEDEP}]
 	>=dev-python/pendulum-2.1.0[${PYTHON_USEDEP}]
-	>=dev-python/cli_helpers-2.0.0[${PYTHON_USEDEP}]
+	>=dev-python/cli_helpers-2.2.1[${PYTHON_USEDEP}]
 "
 DEPEND="${RDEPEND}"

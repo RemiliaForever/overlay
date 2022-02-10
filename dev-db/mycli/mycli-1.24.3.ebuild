@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..10} )
 inherit distutils-r1
 
 DESCRIPTION="CLI for MySQL Database with auto-completion and syntax highlighting"
@@ -28,7 +28,7 @@ RDEPEND="
 	>=dev-python/sqlparse-0.3.0[${PYTHON_USEDEP}]
 	<dev-python/sqlparse-0.5.0[${PYTHON_USEDEP}]
 	>=dev-python/configobj-5.0.5[${PYTHON_USEDEP}]
-	>=dev-python/cli_helpers-2.0.1[${PYTHON_USEDEP}]
+	>=dev-python/cli_helpers-2.2.1[${PYTHON_USEDEP}]
 	>=dev-python/pyperclip-1.8.1[${PYTHON_USEDEP}]
 	>=dev-python/pyaes-1.6.1[${PYTHON_USEDEP}]
 	ssh? ( dev-python/paramiko[${PYTHON_USEDEP}] )

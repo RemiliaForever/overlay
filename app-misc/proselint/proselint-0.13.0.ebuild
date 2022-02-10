@@ -3,7 +3,8 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..10} )
+DISTUTILS_USE_SETUPTOOLS=pyproject.toml
 inherit distutils-r1
 
 DESCRIPTION="A linter for prose."
@@ -20,3 +21,9 @@ RDEPEND="
 	dev-python/six
 "
 DEPEND="${RDEPEND}"
+
+src_prepare() {
+	default
+
+	sed -i 's/^exclude.*$//' pyproject.toml
+}

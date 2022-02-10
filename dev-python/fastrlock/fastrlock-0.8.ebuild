@@ -3,12 +3,12 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{8..10} )
 inherit distutils-r1
 
 DESCRIPTION="A fast RLock implementation for CPython"
 HOMEPAGE="https://github.com/scoder/fastrlock"
-SRC_URI="https://github.com/scoder/fastrlock/archive/${PV}.zip -> ${P}.zip"
+SRC_URI="https://github.com/scoder/fastrlock/archive/v${PV}.zip -> ${P}.zip"
 
 LICENSE="BSD MIT"
 SLOT="0"
