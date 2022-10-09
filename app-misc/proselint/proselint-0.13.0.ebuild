@@ -4,7 +4,7 @@
 EAPI=7
 
 PYTHON_COMPAT=( python3_{8..10} )
-DISTUTILS_USE_SETUPTOOLS=pyproject.toml
+DISTUTILS_USE_PEP517=poetry
 inherit distutils-r1
 
 DESCRIPTION="A linter for prose."
@@ -16,9 +16,9 @@ SLOT="0"
 KEYWORDS="amd64"
 
 RDEPEND="
-	dev-python/click
-	dev-python/future
-	dev-python/six
+	dev-python/click[${PYTHON_USEDEP}]
+	dev-python/future[${PYTHON_USEDEP}]
+	dev-python/six[${PYTHON_USEDEP}]
 "
 DEPEND="${RDEPEND}"
 

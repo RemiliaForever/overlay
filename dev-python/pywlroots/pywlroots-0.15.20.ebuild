@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="amd64"
 
 RDEPEND="
-	>=dev-python/pywayland-0.1.1[${PYTHON_USEDEP}]
+	>=dev-python/pywayland-0.4.14[${PYTHON_USEDEP}]
 	>=dev-python/python-xkbcommon-0.2[${PYTHON_USEDEP}]
 	>=gui-libs/wlroots-0.15.0
 "

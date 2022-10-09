@@ -19,11 +19,19 @@ RESTRICT="test"
 RDEPEND="
 	>=dev-python/cffi-1.1.0[${PYTHON_USEDEP}]
 	>=dev-python/cairocffi-0.9.0[${PYTHON_USEDEP}]
-	>=dev-python/xcffib-0.8.1[${PYTHON_USEDEP}]
 	dev-python/pywlroots[${PYTHON_USEDEP}]
 "
 
 python_install_all() {
 	local DOCS=( CHANGELOG README.rst )
 	distutils-r1_python_install_all
+
+	insinto /usr/share/xsessions
+	doins resources/qtile.desktop
+
+	insinto /usr/share/wayland-sessions
+	doins "${FILESDIR}"/qtile.desktop
+
+	exeinto /etc/X11/Sessions
+	newexe "${FILESDIR}"/${PN}-session-r1 ${PN}
 }
