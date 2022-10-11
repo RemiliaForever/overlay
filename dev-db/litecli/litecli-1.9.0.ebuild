@@ -21,6 +21,6 @@ RDEPEND="
 	<dev-python/prompt_toolkit-4.0.0[${PYTHON_USEDEP}]
 	dev-python/sqlparse[${PYTHON_USEDEP}]
 	>=dev-python/configobj-5.0.5[${PYTHON_USEDEP}]
-	>=dev-python/cli_helpers-1.0.1[${PYTHON_USEDEP}]
+	>=dev-python/cli_helpers-2.2.1[${PYTHON_USEDEP}]
 "
 DEPEND="${RDEPEND}"

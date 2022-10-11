@@ -20,13 +20,13 @@ IUSE="ssh"
 
 RDEPEND="
 	>=dev-python/click-7.0[${PYTHON_USEDEP}]
-	>=dev-python/cryptography-1.0.0[${PYTHON_USEDEP}]
 	>=dev-python/pygments-1.6[${PYTHON_USEDEP}]
 	>=dev-python/prompt_toolkit-3.0.6[${PYTHON_USEDEP}]
 	<dev-python/prompt_toolkit-4.0.0[${PYTHON_USEDEP}]
 	>=dev-python/pymysql-0.9.2[${PYTHON_USEDEP}]
 	>=dev-python/sqlparse-0.3.0[${PYTHON_USEDEP}]
 	<dev-python/sqlparse-0.5.0[${PYTHON_USEDEP}]
+	>=dev-python/sqlglot-5.1.3[${PYTHON_USEDEP}]
 	>=dev-python/configobj-5.0.5[${PYTHON_USEDEP}]
 	>=dev-python/cli_helpers-2.2.1[${PYTHON_USEDEP}]
 	>=dev-python/pyperclip-1.8.1[${PYTHON_USEDEP}]

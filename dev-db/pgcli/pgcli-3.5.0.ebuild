@@ -15,12 +15,12 @@ SLOT="0"
 KEYWORDS="amd64"
 
 RDEPEND="
-	>=dev-python/pgspecial-1.11.8[${PYTHON_USEDEP}]
+	>=dev-python/pgspecial-2.0.0[${PYTHON_USEDEP}]
 	>=dev-python/click-4.1[${PYTHON_USEDEP}]
 	>=dev-python/pygments-2.0[${PYTHON_USEDEP}]
 	>=dev-python/prompt_toolkit-2.0.6[${PYTHON_USEDEP}]
 	<dev-python/prompt_toolkit-4.0.0[${PYTHON_USEDEP}]
-	>=dev-python/psycopg-2.8.0[${PYTHON_USEDEP}]
+	>=dev-python/psycopg-3.0.14[${PYTHON_USEDEP}]
 	>=dev-python/sqlparse-0.3.0[${PYTHON_USEDEP}]
 	<dev-python/sqlparse-0.5.0[${PYTHON_USEDEP}]
 	>=dev-python/configobj-5.0.6[${PYTHON_USEDEP}]
