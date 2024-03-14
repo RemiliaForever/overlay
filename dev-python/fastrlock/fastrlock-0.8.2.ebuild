@@ -3,12 +3,12 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 inherit distutils-r1
 
-DESCRIPTION="Python SQL Parser and Transpiler "
-HOMEPAGE="https://github.com/tobymao/sqlglot"
-SRC_URI="https://github.com/tobymao/sqlglot/archive/v${PV}.zip -> ${P}.zip"
+DESCRIPTION="A fast RLock implementation for CPython"
+HOMEPAGE="https://github.com/scoder/fastrlock"
+SRC_URI="https://github.com/scoder/fastrlock/archive/v${PV}.zip -> ${P}.zip"
 
 LICENSE="BSD MIT"
 SLOT="0"

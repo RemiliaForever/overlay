@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{8..12} )
 inherit distutils-r1
 
 DESCRIPTION="CLI for SQLite Database with auto-completion and syntax highlighting"
@@ -21,6 +21,6 @@ RDEPEND="
 	<dev-python/prompt-toolkit-4.0.0[${PYTHON_USEDEP}]
 	dev-python/sqlparse[${PYTHON_USEDEP}]
 	>=dev-python/configobj-5.0.5[${PYTHON_USEDEP}]
-	>=dev-python/cli_helpers-2.2.1[${PYTHON_USEDEP}]
+	>=dev-python/cli-helpers-2.2.1[${PYTHON_USEDEP}]
 "
 DEPEND="${RDEPEND}"
